@@ -8,16 +8,6 @@
 
 config_version=4
 
-_global_script_classes=[ {
-"base": "Node",
-"class": "Client",
-"language": "GDScript",
-"path": "res://Client.gd"
-} ]
-_global_script_class_icons={
-"Client": ""
-}
-
 [application]
 
 config/name="FamilyPartyGame"

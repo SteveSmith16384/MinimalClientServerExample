@@ -1,8 +1,8 @@
 extends Node2D
 
-var server : TCP_Server
+var client_class = preload("ClientConnection.tscn")
 
-var clients = []
+var server : TCP_Server
 
 func _ready():
 	server = TCP_Server.new()
@@ -16,11 +16,23 @@ func _process(_delta):
 		
 	var client = server.take_connection()
 	print("Client connected")
-	clients.push_back(client)
+	
+	var client_connection = client_class.instance()
+	client_connection.connect("disconnected", self, "_on_disconnected")
+	client_connection._stream = client
+	
+	$Clients.add_child(client_connection)
 	pass
 
 
 func _on_PingTimer_timeout():
-	for client in clients:
-		client.put_data("Hello!".to_ascii())
+	for client in $Clients.get_children():
+		client.send("Hello!".to_ascii())
+	pass
+
+
+func _on_disconnected(client):
+	print("Client disconnected")
+	$Clients.remove_child(client)
+	print(str($Clients.get_child_count()) + " clients remaining")
 	pass

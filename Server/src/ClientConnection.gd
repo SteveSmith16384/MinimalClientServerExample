@@ -1,26 +1,17 @@
 #class_name Client
 extends Node
 
-signal connected      # Connected to server
-signal data(data)           # Received data from server
-signal disconnected   # Disconnected from server
-signal error(msg)          # Error with connection to server
+#signal connected      # Connected to server
+signal data(client, data)           # Received data from server
+signal disconnected(client)   # Disconnected from server
+signal error(client, msg)          # Error with connection to server
 
 var _status: int = 0
-var _stream: StreamPeerTCP = StreamPeerTCP.new()
+var _stream: StreamPeerTCP
+
 
 func _ready() -> void:
 	_status = _stream.get_status()
-	pass
-	
-	
-func connect_to_host(host: String, port: int) -> void:
-	print("Connecting to %s:%d" % [host, port])
-	# Reset status so we can tell if it changes to error again.
-	_status = _stream.STATUS_NONE
-	if _stream.connect_to_host(host, port) != OK:
-		print("Error connecting to host.")
-		emit_signal("error")
 	pass
 	
 	
@@ -42,15 +33,15 @@ func _process(delta: float) -> void:
 		match _status:
 			_stream.STATUS_NONE:
 				print("Disconnected from host.")
-				emit_signal("disconnected")
-			_stream.STATUS_CONNECTING:
-				print("Connecting to host.")
-			_stream.STATUS_CONNECTED:
-				print("Connected to host.")
-				emit_signal("connected")
+				emit_signal("disconnected", self)
+#			_stream.STATUS_CONNECTING:
+#				print("Connecting to host.")
+#			_stream.STATUS_CONNECTED:
+#				print("Connected to host.")
+#				emit_signal("connected")
 			_stream.STATUS_ERROR:
 				print("Error with socket stream.")
-				emit_signal("error")
+				emit_signal("error", self, "Error with socket stream.")
 
 	if _status == _stream.STATUS_CONNECTED:
 		var available_bytes: int = _stream.get_available_bytes()
@@ -60,9 +51,9 @@ func _process(delta: float) -> void:
 			# Check for read error.
 			if data[0] != OK:
 				print("Error getting data from stream: ", data[0])
-				emit_signal("error")
+				emit_signal("error", self, "Error getting data from stream: " + data[0])
 			else:
-				emit_signal("data", data[1])
+				emit_signal("data", self, data[1])
 	pass
 	
 	

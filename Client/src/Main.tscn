@@ -9,3 +9,5 @@ script = ExtResource( 1 )
 [node name="Client" parent="." instance=ExtResource( 2 )]
 
 [connection signal="data" from="Client" to="." method="_on_Client_data"]
+[connection signal="disconnected" from="Client" to="." method="_on_Client_disconnected"]
+[connection signal="error" from="Client" to="." method="_on_Client_error"]
